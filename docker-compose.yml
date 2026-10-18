@@ -1,0 +1,42 @@
+# Deployed via Portainer Stack (Web editor, "Total control") auf VM101.
+# Nicht mehr direkt per `docker compose up` starten — nur als Referenz/Backup.
+#
+# Zieht nachts ueber Portainers eigene Backup-API (/api/backup) einen
+# konsistenten Snapshot von Portainers eigener Konfiguration (Stacks,
+# Environment-Variablen, Settings) und legt ihn auf TrueNAS ab.
+#
+# Siehe README.md fuer Setup-Details und Hintergrund.
+services:
+  portainer-backup:
+    image: curlimages/curl:latest
+    container_name: portainer-backup
+    restart: unless-stopped
+    user: "0:0"
+    environment:
+      - PORTAINER_API_KEY=${PORTAINER_API_KEY}
+    volumes:
+      - backup:/backup
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          ts=$$(date +%Y-%m-%d_%H%M)
+          echo "Running backup: $$ts"
+          curl -k -sS -X POST "https://192.168.178.17:9443/api/backup" \
+            -H "X-API-Key: $PORTAINER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"password":""}' \
+            -o "/backup/portainer-backup-$$ts.zip"
+          echo "curl exit code: $$?"
+          ls -la /backup/
+          find /backup -name "portainer-backup-*.zip" -mtime +14 -delete
+          sleep 86400
+        done
+
+volumes:
+  backup:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.178.16,nfsvers=4,rw
+      device: ":/mnt/mainpool/docker/docker-volume/portainer_backups"
