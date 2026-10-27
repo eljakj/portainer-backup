@@ -23,7 +23,7 @@ zu kopieren, kein Container-Stopp nötig.
 
 - Container läuft dauerhaft (`restart: unless-stopped`) und macht einmal
   direkt beim Start und danach alle 24h ein Backup
-- Ruft `https://192.168.178.17:9443/api/backup` mit einem Portainer-API-Key auf
+- Ruft `$PORTAINER_URL/api/backup` mit einem Portainer-API-Key auf
 - Speichert das Ergebnis als `.zip` in einem NFS-Volume auf TrueNAS
   (`/mnt/mainpool/docker/docker-volume/portainer_backups`)
 - Behält die letzten 14 Tage, ältere Backups werden automatisch gelöscht
@@ -35,8 +35,9 @@ zu kopieren, kein Container-Stopp nötig.
 2. Auf TrueNAS den Ordner `portainer_backups` unter `docker-volume` anlegen
    (falls noch nicht vorhanden)
 3. Stack in Portainer anlegen (Web editor, Inhalt aus `docker-compose.yml`)
-4. Environment-Variable `PORTAINER_API_KEY` mit dem Token aus Schritt 1
-   eintragen
+4. Environment-Variablen eintragen: `PORTAINER_API_KEY` (Token aus Schritt 1),
+   `PORTAINER_URL` (z. B. `https://portainer.example.lan:9443`) und
+   `NFS_HOST` (Adresse deines TrueNAS-Servers)
 5. Deploy
 
 ## Wiederherstellung
