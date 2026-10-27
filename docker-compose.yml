@@ -14,6 +14,7 @@ services:
     user: "0:0"
     environment:
       - PORTAINER_API_KEY=${PORTAINER_API_KEY}
+      - PORTAINER_URL=${PORTAINER_URL}
     volumes:
       - backup:/backup
     entrypoint: ["/bin/sh", "-c"]
@@ -22,7 +23,7 @@ services:
         while true; do
           ts=$$(date +%Y-%m-%d_%H%M)
           echo "Running backup: $$ts"
-          curl -k -sS -X POST "https://192.168.178.17:9443/api/backup" \
+          curl -k -sS -X POST "$PORTAINER_URL/api/backup" \
             -H "X-API-Key: $PORTAINER_API_KEY" \
             -H "Content-Type: application/json" \
             -d '{"password":""}' \
@@ -38,5 +39,5 @@ volumes:
     driver: local
     driver_opts:
       type: nfs
-      o: addr=192.168.178.16,nfsvers=4,rw
+      o: addr=${NFS_HOST},nfsvers=4,rw
       device: ":/mnt/mainpool/docker/docker-volume/portainer_backups"
