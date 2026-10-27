@@ -36,8 +36,9 @@ services:
 
 volumes:
   backup:
+    name: portainer-backups
     driver: local
     driver_opts:
       type: nfs
       o: addr=${NFS_HOST},nfsvers=4,rw
-      device: ":/mnt/mainpool/docker/docker-volume/portainer_backups"
+      device: ":/mnt/mainpool/docker/docker-volume/portainer-backups"
